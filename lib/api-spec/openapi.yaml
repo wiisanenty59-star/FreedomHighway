@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: UrbEx Explorer API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User management
+  - name: locations
+    description: Urbex location pins
+  - name: forum
+    description: Forum threads and posts
+  - name: categories
+    description: Location categories
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +33,452 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new account (pending approval)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: Registration submitted, pending admin approval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, banned]
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a specific user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUserStatus
+      tags: [users]
+      summary: Approve, ban, or update a user (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserStatusBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [locations]
+      summary: List all approved locations
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+    post:
+      operationId: createLocation
+      tags: [locations]
+      summary: Add a new location pin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationBody"
+      responses:
+        "201":
+          description: Created location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+
+  /locations/{id}:
+    get:
+      operationId: getLocation
+      tags: [locations]
+      summary: Get a specific location with details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Location detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationDetail"
+    patch:
+      operationId: updateLocation
+      tags: [locations]
+      summary: Update a location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLocationBody"
+      responses:
+        "200":
+          description: Updated location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+    delete:
+      operationId: deleteLocation
+      tags: [locations]
+      summary: Delete a location (admin or owner)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /locations/stats:
+    get:
+      operationId: getLocationStats
+      tags: [locations]
+      summary: Get location stats - counts by category
+      responses:
+        "200":
+          description: Location statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationStats"
+
+  /locations/recent:
+    get:
+      operationId: getRecentLocations
+      tags: [locations]
+      summary: Get recently added locations
+      responses:
+        "200":
+          description: Recent locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all location categories
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /forum/threads:
+    get:
+      operationId: listThreads
+      tags: [forum]
+      summary: List forum threads
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Forum threads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Thread"
+    post:
+      operationId: createThread
+      tags: [forum]
+      summary: Create a new forum thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateThreadBody"
+      responses:
+        "201":
+          description: Created thread
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thread"
+
+  /forum/threads/{id}:
+    get:
+      operationId: getThread
+      tags: [forum]
+      summary: Get a thread with all its posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Thread with posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadDetail"
+    delete:
+      operationId: deleteThread
+      tags: [forum]
+      summary: Delete a thread (admin or author)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /forum/threads/{id}/posts:
+    post:
+      operationId: createPost
+      tags: [forum]
+      summary: Reply to a thread
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePostBody"
+      responses:
+        "201":
+          description: Created post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /forum/posts/{id}:
+    delete:
+      operationId: deletePost
+      tags: [forum]
+      summary: Delete a post (admin or author)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /forum/categories:
+    get:
+      operationId: listForumCategories
+      tags: [forum]
+      summary: List forum categories
+      responses:
+        "200":
+          description: Forum categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ForumCategory"
+
+  /forum/stats:
+    get:
+      operationId: getForumStats
+      tags: [forum]
+      summary: Forum statistics - thread count, post count, active users
+      responses:
+        "200":
+          description: Forum stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForumStats"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +486,383 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    RegisterBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+      required: [username, password, email]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+      required: [user, message]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, member]
+        status:
+          type: string
+          enum: [pending, approved, banned]
+        bio:
+          type: string
+        location:
+          type: string
+        joinedAt:
+          type: string
+        postCount:
+          type: integer
+        locationCount:
+          type: integer
+      required: [id, username, email, role, status, joinedAt]
+
+    UpdateUserStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, banned]
+        role:
+          type: string
+          enum: [admin, member]
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+        description:
+          type: string
+        locationCount:
+          type: integer
+      required: [id, name, slug, icon, color]
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        categoryIcon:
+          type: string
+        categoryColor:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        addedById:
+          type: integer
+        addedByUsername:
+          type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high, extreme]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        imageUrl:
+          type: string
+        createdAt:
+          type: string
+        viewCount:
+          type: integer
+      required: [id, title, latitude, longitude, categoryId, riskLevel, status, createdAt]
+
+    LocationDetail:
+      allOf:
+        - $ref: "#/components/schemas/Location"
+        - type: object
+          properties:
+            images:
+              type: array
+              items:
+                type: string
+            accessNotes:
+              type: string
+            hazards:
+              type: string
+            bestTimeToVisit:
+              type: string
+            relatedThreads:
+              type: array
+              items:
+                $ref: "#/components/schemas/Thread"
+
+    CreateLocationBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        categoryId:
+          type: integer
+        state:
+          type: string
+        country:
+          type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high, extreme]
+        imageUrl:
+          type: string
+        accessNotes:
+          type: string
+        hazards:
+          type: string
+        bestTimeToVisit:
+          type: string
+      required: [title, description, latitude, longitude, categoryId, riskLevel]
+
+    UpdateLocationBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: integer
+        riskLevel:
+          type: string
+          enum: [low, medium, high, extreme]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        accessNotes:
+          type: string
+        hazards:
+          type: string
+        bestTimeToVisit:
+          type: string
+        imageUrl:
+          type: string
+
+    LocationStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        byCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              categoryId:
+                type: integer
+              categoryName:
+                type: string
+              categoryIcon:
+                type: string
+              categoryColor:
+                type: string
+              count:
+                type: integer
+            required: [categoryId, categoryName, count]
+        recentlyAdded:
+          type: integer
+        byCountry:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              count:
+                type: integer
+            required: [country, count]
+      required: [total, byCategory, recentlyAdded, byCountry]
+
+    Thread:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        authorId:
+          type: integer
+        authorUsername:
+          type: string
+        forumCategoryId:
+          type: integer
+        forumCategoryName:
+          type: string
+        postCount:
+          type: integer
+        viewCount:
+          type: integer
+        isPinned:
+          type: boolean
+        isLocked:
+          type: boolean
+        lastPostAt:
+          type: string
+        lastPostUsername:
+          type: string
+        createdAt:
+          type: string
+      required: [id, title, content, authorId, authorUsername, createdAt]
+
+    ThreadDetail:
+      allOf:
+        - $ref: "#/components/schemas/Thread"
+        - type: object
+          properties:
+            posts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Post"
+
+    CreateThreadBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        forumCategoryId:
+          type: integer
+      required: [title, content, forumCategoryId]
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        authorId:
+          type: integer
+        authorUsername:
+          type: string
+        authorRole:
+          type: string
+        authorJoinedAt:
+          type: string
+        authorPostCount:
+          type: integer
+        threadId:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, content, authorId, authorUsername, threadId, createdAt]
+
+    CreatePostBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+
+    ForumCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+        threadCount:
+          type: integer
+        postCount:
+          type: integer
+        lastThreadTitle:
+          type: string
+        lastThreadAt:
+          type: string
+      required: [id, name, slug]
+
+    ForumStats:
+      type: object
+      properties:
+        totalThreads:
+          type: integer
+        totalPosts:
+          type: integer
+        totalMembers:
+          type: integer
+        newestMember:
+          type: string
+        onlineCount:
+          type: integer
+      required: [totalThreads, totalPosts, totalMembers]
