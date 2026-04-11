@@ -22,7 +22,7 @@ An invite-only urban exploration community website. Users must register and be a
 ## Admin Credentials
 
 - Username: `T-Why`
-- Password: `219720`
+- Password: `Qzz908kasr15`
 
 ## Key Commands
 
