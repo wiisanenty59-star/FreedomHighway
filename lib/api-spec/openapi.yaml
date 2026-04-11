@@ -20,6 +20,8 @@ tags:
     description: Forum threads and posts
   - name: categories
     description: Location categories
+  - name: invites
+    description: Invite system
 paths:
   /healthz:
     get:
@@ -479,6 +481,76 @@ paths:
               schema:
                 $ref: "#/components/schemas/ForumStats"
 
+  /invites:
+    get:
+      operationId: listMyInvites
+      tags: [invites]
+      summary: Get current user's invite codes
+      responses:
+        "200":
+          description: List of invites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invite"
+    post:
+      operationId: createInvite
+      tags: [invites]
+      summary: Generate an invite code (requires 10+ posts and 2+ locations)
+      responses:
+        "201":
+          description: Created invite
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+        "403":
+          description: Not enough activity to send invites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /invites/eligibility:
+    get:
+      operationId: getInviteEligibility
+      tags: [invites]
+      summary: Check if current user is eligible to send invites
+      responses:
+        "200":
+          description: Eligibility status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteEligibility"
+
+  /invites/validate/{code}:
+    get:
+      operationId: validateInviteCode
+      tags: [invites]
+      summary: Validate an invite code before registration
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invite is valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Invite is invalid or expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -866,3 +938,39 @@ components:
         onlineCount:
           type: integer
       required: [totalThreads, totalPosts, totalMembers]
+
+    Invite:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        createdById:
+          type: integer
+        usedById:
+          type: integer
+          nullable: true
+        usedAt:
+          type: string
+          nullable: true
+        expiresAt:
+          type: string
+        createdAt:
+          type: string
+      required: [id, code, createdById, expiresAt, createdAt]
+
+    InviteEligibility:
+      type: object
+      properties:
+        eligible:
+          type: boolean
+        postCount:
+          type: integer
+        locationCount:
+          type: integer
+        requiredPosts:
+          type: integer
+        requiredLocations:
+          type: integer
+      required: [eligible, postCount, locationCount, requiredPosts, requiredLocations]
