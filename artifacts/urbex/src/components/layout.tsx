@@ -58,7 +58,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <SheetContent side="left" className="w-64 bg-card border-r-border p-0">
                 <div className="p-4 border-b border-border">
                   <Link href="/" className="flex items-center gap-2 font-mono font-bold text-lg text-primary tracking-tighter uppercase">
-                    URBEX<span className="text-foreground">EXPLORER</span>
+                    HIDDEN<span className="text-foreground">FREEWAYS</span>
                   </Link>
                 </div>
                 <div className="flex flex-col py-4">
@@ -69,7 +69,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
           
           <Link href="/" className="hidden md:flex items-center gap-2 font-mono font-bold text-xl text-primary tracking-tighter uppercase mr-8">
-            URBEX<span className="text-foreground">EXPLORER</span>
+            HIDDEN<span className="text-foreground">FREEWAYS</span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-1 flex-1">
@@ -107,7 +107,7 @@ export function Layout({ children }: { children: ReactNode }) {
       
       <footer className="border-t border-border bg-card py-6 mt-auto">
         <div className="container px-4 text-center text-xs font-mono text-muted-foreground">
-          <p>UrbEx Explorer // UNDERGROUND COMMUNITY</p>
+          <p>HiddenFreeways // UNDERGROUND COMMUNITY</p>
         </div>
       </footer>
     </div>

@@ -75,7 +75,7 @@ export default function Register() {
           APPLY FOR ACCESS
         </h2>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          UrbEx Explorer is an invite-only community.
+          HiddenFreeways is an invite-only community.
         </p>
       </div>
 

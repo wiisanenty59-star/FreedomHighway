@@ -75,7 +75,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: { children: R
           <p className="text-muted-foreground">
             Your application is currently being reviewed by our administrators. You will be granted access once approved.
           </p>
-          <p className="text-xs text-muted-foreground mt-8">UrbEx Explorer</p>
+          <p className="text-xs text-muted-foreground mt-8">HiddenFreeways</p>
         </div>
       </div>
     );
