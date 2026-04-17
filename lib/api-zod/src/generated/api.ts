@@ -501,3 +501,39 @@ export const GetForumStatsResponse = zod.object({
   newestMember: zod.string().optional(),
   onlineCount: zod.number().optional(),
 });
+
+/**
+ * @summary Get current user's invite codes
+ */
+export const ListMyInvitesResponseItem = zod.object({
+  id: zod.number(),
+  code: zod.string(),
+  createdById: zod.number(),
+  usedById: zod.number().nullish(),
+  usedAt: zod.string().nullish(),
+  expiresAt: zod.string(),
+  createdAt: zod.string(),
+});
+export const ListMyInvitesResponse = zod.array(ListMyInvitesResponseItem);
+
+/**
+ * @summary Check if current user is eligible to send invites
+ */
+export const GetInviteEligibilityResponse = zod.object({
+  eligible: zod.boolean(),
+  postCount: zod.number(),
+  locationCount: zod.number(),
+  requiredPosts: zod.number(),
+  requiredLocations: zod.number(),
+});
+
+/**
+ * @summary Validate an invite code before registration
+ */
+export const ValidateInviteCodeParams = zod.object({
+  code: zod.coerce.string(),
+});
+
+export const ValidateInviteCodeResponse = zod.object({
+  message: zod.string(),
+});

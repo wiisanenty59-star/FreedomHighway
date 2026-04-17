@@ -26,6 +26,8 @@ import type {
   ForumCategory,
   ForumStats,
   HealthStatus,
+  Invite,
+  InviteEligibility,
   ListLocationsParams,
   ListThreadsParams,
   ListUsersParams,
@@ -2036,6 +2038,323 @@ export function useGetForumStats<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetForumStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get current user's invite codes
+ */
+export const getListMyInvitesUrl = () => {
+  return `/api/invites`;
+};
+
+export const listMyInvites = async (
+  options?: RequestInit,
+): Promise<Invite[]> => {
+  return customFetch<Invite[]>(getListMyInvitesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMyInvitesQueryKey = () => {
+  return [`/api/invites`] as const;
+};
+
+export const getListMyInvitesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMyInvites>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyInvites>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMyInvitesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyInvites>>> = ({
+    signal,
+  }) => listMyInvites({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMyInvites>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMyInvitesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMyInvites>>
+>;
+export type ListMyInvitesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get current user's invite codes
+ */
+
+export function useListMyInvites<
+  TData = Awaited<ReturnType<typeof listMyInvites>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyInvites>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMyInvitesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Generate an invite code (requires 10+ posts and 2+ locations)
+ */
+export const getCreateInviteUrl = () => {
+  return `/api/invites`;
+};
+
+export const createInvite = async (options?: RequestInit): Promise<Invite> => {
+  return customFetch<Invite>(getCreateInviteUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getCreateInviteMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInvite>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createInvite>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["createInvite"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createInvite>>,
+    void
+  > = () => {
+    return createInvite(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateInviteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createInvite>>
+>;
+
+export type CreateInviteMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Generate an invite code (requires 10+ posts and 2+ locations)
+ */
+export const useCreateInvite = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInvite>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createInvite>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getCreateInviteMutationOptions(options));
+};
+
+/**
+ * @summary Check if current user is eligible to send invites
+ */
+export const getGetInviteEligibilityUrl = () => {
+  return `/api/invites/eligibility`;
+};
+
+export const getInviteEligibility = async (
+  options?: RequestInit,
+): Promise<InviteEligibility> => {
+  return customFetch<InviteEligibility>(getGetInviteEligibilityUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInviteEligibilityQueryKey = () => {
+  return [`/api/invites/eligibility`] as const;
+};
+
+export const getGetInviteEligibilityQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInviteEligibility>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInviteEligibility>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInviteEligibilityQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInviteEligibility>>
+  > = ({ signal }) => getInviteEligibility({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInviteEligibility>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInviteEligibilityQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInviteEligibility>>
+>;
+export type GetInviteEligibilityQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Check if current user is eligible to send invites
+ */
+
+export function useGetInviteEligibility<
+  TData = Awaited<ReturnType<typeof getInviteEligibility>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInviteEligibility>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInviteEligibilityQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Validate an invite code before registration
+ */
+export const getValidateInviteCodeUrl = (code: string) => {
+  return `/api/invites/validate/${code}`;
+};
+
+export const validateInviteCode = async (
+  code: string,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getValidateInviteCodeUrl(code), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getValidateInviteCodeQueryKey = (code: string) => {
+  return [`/api/invites/validate/${code}`] as const;
+};
+
+export const getValidateInviteCodeQueryOptions = <
+  TData = Awaited<ReturnType<typeof validateInviteCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  code: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof validateInviteCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getValidateInviteCodeQueryKey(code);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof validateInviteCode>>
+  > = ({ signal }) => validateInviteCode(code, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!code,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof validateInviteCode>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ValidateInviteCodeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof validateInviteCode>>
+>;
+export type ValidateInviteCodeQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Validate an invite code before registration
+ */
+
+export function useValidateInviteCode<
+  TData = Awaited<ReturnType<typeof validateInviteCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  code: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof validateInviteCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getValidateInviteCodeQueryOptions(code, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

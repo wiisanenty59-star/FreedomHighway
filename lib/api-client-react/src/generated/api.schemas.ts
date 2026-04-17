@@ -283,6 +283,24 @@ export interface ForumStats {
   onlineCount?: number;
 }
 
+export interface Invite {
+  id: number;
+  code: string;
+  createdById: number;
+  usedById?: number | null;
+  usedAt?: string | null;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface InviteEligibility {
+  eligible: boolean;
+  postCount: number;
+  locationCount: number;
+  requiredPosts: number;
+  requiredLocations: number;
+}
+
 export type ListUsersParams = {
   status?: ListUsersStatus;
 };
