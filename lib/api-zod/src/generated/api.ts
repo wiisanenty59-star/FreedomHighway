@@ -34,6 +34,11 @@ export const LoginResponse = zod.object({
     joinedAt: zod.string(),
     postCount: zod.number().optional(),
     locationCount: zod.number().optional(),
+    joinPurpose: zod.string().optional(),
+    joinReason: zod.string().optional(),
+    joinWhyAccept: zod.string().optional(),
+    exploreExperience: zod.string().optional(),
+    canSendInvites: zod.boolean().optional(),
   }),
   message: zod.string(),
 });
@@ -47,6 +52,11 @@ export const RegisterBody = zod.object({
   email: zod.string(),
   bio: zod.string().optional(),
   location: zod.string().optional(),
+  inviteCode: zod.string().optional(),
+  joinPurpose: zod.string(),
+  joinReason: zod.string(),
+  joinWhyAccept: zod.string(),
+  exploreExperience: zod.string().optional(),
 });
 
 /**
@@ -70,6 +80,11 @@ export const GetCurrentUserResponse = zod.object({
   joinedAt: zod.string(),
   postCount: zod.number().optional(),
   locationCount: zod.number().optional(),
+  joinPurpose: zod.string().optional(),
+  joinReason: zod.string().optional(),
+  joinWhyAccept: zod.string().optional(),
+  exploreExperience: zod.string().optional(),
+  canSendInvites: zod.boolean().optional(),
 });
 
 /**
@@ -90,6 +105,11 @@ export const ListUsersResponseItem = zod.object({
   joinedAt: zod.string(),
   postCount: zod.number().optional(),
   locationCount: zod.number().optional(),
+  joinPurpose: zod.string().optional(),
+  joinReason: zod.string().optional(),
+  joinWhyAccept: zod.string().optional(),
+  exploreExperience: zod.string().optional(),
+  canSendInvites: zod.boolean().optional(),
 });
 export const ListUsersResponse = zod.array(ListUsersResponseItem);
 
@@ -111,6 +131,11 @@ export const GetUserResponse = zod.object({
   joinedAt: zod.string(),
   postCount: zod.number().optional(),
   locationCount: zod.number().optional(),
+  joinPurpose: zod.string().optional(),
+  joinReason: zod.string().optional(),
+  joinWhyAccept: zod.string().optional(),
+  exploreExperience: zod.string().optional(),
+  canSendInvites: zod.boolean().optional(),
 });
 
 /**
@@ -136,6 +161,11 @@ export const UpdateUserStatusResponse = zod.object({
   joinedAt: zod.string(),
   postCount: zod.number().optional(),
   locationCount: zod.number().optional(),
+  joinPurpose: zod.string().optional(),
+  joinReason: zod.string().optional(),
+  joinWhyAccept: zod.string().optional(),
+  exploreExperience: zod.string().optional(),
+  canSendInvites: zod.boolean().optional(),
 });
 
 /**
@@ -500,6 +530,142 @@ export const GetForumStatsResponse = zod.object({
   totalMembers: zod.number(),
   newestMember: zod.string().optional(),
   onlineCount: zod.number().optional(),
+});
+
+/**
+ * @summary List admin users for forum sidebar
+ */
+export const ListAdminsResponseItem = zod.object({
+  id: zod.number(),
+  username: zod.string(),
+  email: zod.string(),
+  role: zod.enum(["admin", "member"]),
+  status: zod.enum(["pending", "approved", "banned"]),
+  bio: zod.string().optional(),
+  location: zod.string().optional(),
+  joinedAt: zod.string(),
+  postCount: zod.number().optional(),
+  locationCount: zod.number().optional(),
+  joinPurpose: zod.string().optional(),
+  joinReason: zod.string().optional(),
+  joinWhyAccept: zod.string().optional(),
+  exploreExperience: zod.string().optional(),
+  canSendInvites: zod.boolean().optional(),
+});
+export const ListAdminsResponse = zod.array(ListAdminsResponseItem);
+
+/**
+ * @summary Admin - list all forum categories
+ */
+export const AdminListForumCategoriesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  description: zod.string().optional(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  threadCount: zod.number().optional(),
+  postCount: zod.number().optional(),
+  lastThreadTitle: zod.string().optional(),
+  lastThreadAt: zod.string().optional(),
+});
+export const AdminListForumCategoriesResponse = zod.array(
+  AdminListForumCategoriesResponseItem,
+);
+
+/**
+ * @summary Admin - create forum category
+ */
+export const AdminCreateForumCategoryBody = zod.object({
+  name: zod.string(),
+  description: zod.string().optional(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  sortOrder: zod.number().optional(),
+});
+
+/**
+ * @summary Admin - update forum category
+ */
+export const AdminUpdateForumCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateForumCategoryBody = zod.object({
+  name: zod.string(),
+  description: zod.string().optional(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  sortOrder: zod.number().optional(),
+});
+
+export const AdminUpdateForumCategoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  description: zod.string().optional(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  threadCount: zod.number().optional(),
+  postCount: zod.number().optional(),
+  lastThreadTitle: zod.string().optional(),
+  lastThreadAt: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - delete forum category
+ */
+export const AdminDeleteForumCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDeleteForumCategoryResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Admin - create location category
+ */
+export const AdminCreateLocationCategoryBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  color: zod.string().optional(),
+  description: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - update location category
+ */
+export const AdminUpdateLocationCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateLocationCategoryBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+  icon: zod.string().optional(),
+  color: zod.string().optional(),
+  description: zod.string().optional(),
+});
+
+export const AdminUpdateLocationCategoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  icon: zod.string(),
+  color: zod.string(),
+  description: zod.string().optional(),
+  locationCount: zod.number().optional(),
+});
+
+/**
+ * @summary Admin - delete location category
+ */
+export const AdminDeleteLocationCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDeleteLocationCategoryResponse = zod.object({
+  message: zod.string(),
 });
 
 /**

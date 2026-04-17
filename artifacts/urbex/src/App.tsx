@@ -19,6 +19,7 @@ import ForumThread from "@/pages/forum-thread";
 import ForumNew from "@/pages/forum-new";
 import Admin from "@/pages/admin";
 import Profile from "@/pages/profile";
+import Invites from "@/pages/invites";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,12 @@ function Router() {
       <Route path="/forum/thread/:id">
         <ProtectedRoute>
           <Layout><ForumThread /></Layout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/invites">
+        <ProtectedRoute>
+          <Layout><Invites /></Layout>
         </ProtectedRoute>
       </Route>
       

@@ -12,4 +12,9 @@ export interface RegisterBody {
   email: string;
   bio?: string;
   location?: string;
+  inviteCode?: string;
+  joinPurpose: string;
+  joinReason: string;
+  joinWhyAccept: string;
+  exploreExperience?: string;
 }

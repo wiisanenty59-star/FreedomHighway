@@ -2,7 +2,7 @@
 
 ## Overview
 
-An invite-only urban exploration community website. Users must register and be approved by an admin before accessing the site. Features an interactive map, location database, and retro-style forum.
+An invite-only urban exploration community website. Users must register (with full application questions) and be approved by an admin before accessing the site. Features an interactive map, location database, retro-style forum, and earned invite system.
 
 ## Stack
 
@@ -34,20 +34,42 @@ An invite-only urban exploration community website. Users must register and be a
 
 ## Features
 
-- **Invite-only registration**: Users register and wait for admin approval
-- **Admin panel**: Approve/ban users, manage locations (admin: T-Why)
-- **Interactive Map**: Full US/Canada map with OpenStreetMap + satellite toggle. Click to add pins, filter by category
-- **Location Database**: Abandoned buildings, graffiti, caves, tunnels, rooftops, industrial sites, military sites, bridges
-- **Forum**: phpBB/Lemmy-style retro forum with categories, threads, post counts, user info panels
-- **Dark theme**: Charcoal/black backgrounds, amber (#f59e0b) accents
+### Access Control
+- **Invite-only registration** with full application questionnaire (purpose, reason to join, why accept, exploration experience)
+- **Invite codes**: Members with 10+ posts and 2+ locations earn the ability to generate invite codes (14-day expiry, max 3 active)
+- **Auto-approval**: Users with valid invite codes are instantly approved on registration
+- **Admin panel**: Approve/ban users (with expandable application answers), manage locations, manage forum boards, manage location categories
+
+### Forum
+- phpBB/Lemmy-style retro forum with categories, threads, posts
+- **Rules & Guidelines** board pinned at top with comprehensive community rules
+- Forum sidebar: network stats, admin team list, quick links
+- Admin can create/edit/delete forum boards in-panel
+
+### Map & Locations
+- Interactive US/Canada map (OpenStreetMap + ESRI satellite toggle)
+- Color-coded pins by category: Abandoned Buildings, Graffiti Art, Caves, Tunnels, Rooftops, Industrial Sites, Military Sites, Bridges
+- Admin can create/edit/delete location categories in-panel
+
+### Theme
+- Dark theme: charcoal/black backgrounds, amber (#f59e0b) accents, Space Mono font
+- OPSEC-focused UX copy throughout
 
 ## DB Schema
 
-- `users` — user accounts with roles (admin/member) and status (pending/approved/banned)
-- `categories` — location categories (abandoned buildings, graffiti, etc.)
+- `users` — accounts with roles (admin/member), status (pending/approved/banned), registration answers, invite tracking
+- `categories` — location categories with icon/color
 - `locations` — map pins with coordinates, risk level, status
-- `forum_categories` — forum boards
-- `threads` — forum threads
+- `forum_categories` — forum boards with sortOrder
+- `threads` — forum threads (support pinned + locked)
 - `posts` — forum replies
+- `invites` — invite codes (created_by, used_by, expires_at)
+
+## Invite System Rules (hardcoded in auth.ts / invites.ts)
+
+- POSTS_REQUIRED = 10
+- LOCATIONS_REQUIRED = 2
+- INVITE_EXPIRY_DAYS = 14
+- MAX_ACTIVE_INVITES = 3
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

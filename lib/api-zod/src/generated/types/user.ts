@@ -19,4 +19,9 @@ export interface User {
   joinedAt: string;
   postCount?: number;
   locationCount?: number;
+  joinPurpose?: string;
+  joinReason?: string;
+  joinWhyAccept?: string;
+  exploreExperience?: string;
+  canSendInvites?: boolean;
 }

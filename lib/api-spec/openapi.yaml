@@ -481,6 +481,156 @@ paths:
               schema:
                 $ref: "#/components/schemas/ForumStats"
 
+  /users/admins:
+    get:
+      operationId: listAdmins
+      tags: [users]
+      summary: List admin users for forum sidebar
+      responses:
+        "200":
+          description: List of admin users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /admin/forum-categories:
+    get:
+      operationId: adminListForumCategories
+      tags: [forum]
+      summary: Admin - list all forum categories
+      responses:
+        "200":
+          description: Forum categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ForumCategory"
+    post:
+      operationId: adminCreateForumCategory
+      tags: [forum]
+      summary: Admin - create forum category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertForumCategoryBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForumCategory"
+
+  /admin/forum-categories/{id}:
+    put:
+      operationId: adminUpdateForumCategory
+      tags: [forum]
+      summary: Admin - update forum category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertForumCategoryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForumCategory"
+    delete:
+      operationId: adminDeleteForumCategory
+      tags: [forum]
+      summary: Admin - delete forum category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/location-categories:
+    post:
+      operationId: adminCreateLocationCategory
+      tags: [categories]
+      summary: Admin - create location category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertLocationCategoryBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /admin/location-categories/{id}:
+    put:
+      operationId: adminUpdateLocationCategory
+      tags: [categories]
+      summary: Admin - update location category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertLocationCategoryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: adminDeleteLocationCategory
+      tags: [categories]
+      summary: Admin - delete location category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
   /invites:
     get:
       operationId: listMyInvites
@@ -596,7 +746,17 @@ components:
           type: string
         location:
           type: string
-      required: [username, password, email]
+        inviteCode:
+          type: string
+        joinPurpose:
+          type: string
+        joinReason:
+          type: string
+        joinWhyAccept:
+          type: string
+        exploreExperience:
+          type: string
+      required: [username, password, email, joinPurpose, joinReason, joinWhyAccept]
 
     AuthResponse:
       type: object
@@ -632,6 +792,16 @@ components:
           type: integer
         locationCount:
           type: integer
+        joinPurpose:
+          type: string
+        joinReason:
+          type: string
+        joinWhyAccept:
+          type: string
+        exploreExperience:
+          type: string
+        canSendInvites:
+          type: boolean
       required: [id, username, email, role, status, joinedAt]
 
     UpdateUserStatusBody:
@@ -959,6 +1129,36 @@ components:
         createdAt:
           type: string
       required: [id, code, createdById, expiresAt, createdAt]
+
+    UpsertForumCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+        sortOrder:
+          type: integer
+      required: [name, slug]
+
+    UpsertLocationCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+        description:
+          type: string
+      required: [name, slug]
 
     InviteEligibility:
       type: object

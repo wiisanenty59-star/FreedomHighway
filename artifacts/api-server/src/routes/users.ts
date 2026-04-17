@@ -14,7 +14,15 @@ function requireAuth(req: any, res: any): number | null {
   return userId;
 }
 
+const POSTS_TO_INVITE = 10;
+const LOCATIONS_TO_INVITE = 2;
+
 function serializeUser(user: typeof usersTable.$inferSelect) {
+  const canSendInvites =
+    user.status === "approved" &&
+    user.postCount >= POSTS_TO_INVITE &&
+    user.locationCount >= LOCATIONS_TO_INVITE;
+
   return {
     id: user.id,
     username: user.username,
@@ -26,8 +34,31 @@ function serializeUser(user: typeof usersTable.$inferSelect) {
     joinedAt: user.joinedAt.toISOString(),
     postCount: user.postCount,
     locationCount: user.locationCount,
+    joinPurpose: user.joinPurpose ?? undefined,
+    joinReason: user.joinReason ?? undefined,
+    joinWhyAccept: user.joinWhyAccept ?? undefined,
+    exploreExperience: user.exploreExperience ?? undefined,
+    canSendInvites,
   };
 }
+
+router.get("/users/admins", async (req, res): Promise<void> => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+
+  const [me] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  if (!me || me.status !== "approved") {
+    res.status(403).json({ error: "Not approved" });
+    return;
+  }
+
+  const admins = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.role, "admin"));
+
+  res.json(admins.map(serializeUser));
+});
 
 router.get("/users", async (req, res): Promise<void> => {
   const userId = requireAuth(req, res);
@@ -40,7 +71,6 @@ router.get("/users", async (req, res): Promise<void> => {
   }
 
   const params = ListUsersQueryParams.safeParse(req.query);
-  let query = db.select().from(usersTable);
 
   if (params.success && params.data.status) {
     const users = await db.select().from(usersTable).where(eq(usersTable.status, params.data.status));
@@ -48,7 +78,7 @@ router.get("/users", async (req, res): Promise<void> => {
     return;
   }
 
-  const users = await query;
+  const users = await db.select().from(usersTable);
   res.json(users.map(serializeUser));
 });
 

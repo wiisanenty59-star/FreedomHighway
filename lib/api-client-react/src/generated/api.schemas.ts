@@ -28,6 +28,11 @@ export interface RegisterBody {
   email: string;
   bio?: string;
   location?: string;
+  inviteCode?: string;
+  joinPurpose: string;
+  joinReason: string;
+  joinWhyAccept: string;
+  exploreExperience?: string;
 }
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
@@ -56,6 +61,11 @@ export interface User {
   joinedAt: string;
   postCount?: number;
   locationCount?: number;
+  joinPurpose?: string;
+  joinReason?: string;
+  joinWhyAccept?: string;
+  exploreExperience?: string;
+  canSendInvites?: boolean;
 }
 
 export interface AuthResponse {
@@ -291,6 +301,22 @@ export interface Invite {
   usedAt?: string | null;
   expiresAt: string;
   createdAt: string;
+}
+
+export interface UpsertForumCategoryBody {
+  name: string;
+  description?: string;
+  slug: string;
+  icon?: string;
+  sortOrder?: number;
+}
+
+export interface UpsertLocationCategoryBody {
+  name: string;
+  slug: string;
+  icon?: string;
+  color?: string;
+  description?: string;
 }
 
 export interface InviteEligibility {

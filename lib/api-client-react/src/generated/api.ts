@@ -42,6 +42,8 @@ import type {
   ThreadDetail,
   UpdateLocationBody,
   UpdateUserStatusBody,
+  UpsertForumCategoryBody,
+  UpsertLocationCategoryBody,
   User,
 } from "./api.schemas";
 
@@ -2045,6 +2047,673 @@ export function useGetForumStats<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary List admin users for forum sidebar
+ */
+export const getListAdminsUrl = () => {
+  return `/api/users/admins`;
+};
+
+export const listAdmins = async (options?: RequestInit): Promise<User[]> => {
+  return customFetch<User[]>(getListAdminsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAdminsQueryKey = () => {
+  return [`/api/users/admins`] as const;
+};
+
+export const getListAdminsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdmins>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAdmins>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAdminsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdmins>>> = ({
+    signal,
+  }) => listAdmins({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdmins>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAdminsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdmins>>
+>;
+export type ListAdminsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List admin users for forum sidebar
+ */
+
+export function useListAdmins<
+  TData = Awaited<ReturnType<typeof listAdmins>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAdmins>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAdminsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Admin - list all forum categories
+ */
+export const getAdminListForumCategoriesUrl = () => {
+  return `/api/admin/forum-categories`;
+};
+
+export const adminListForumCategories = async (
+  options?: RequestInit,
+): Promise<ForumCategory[]> => {
+  return customFetch<ForumCategory[]>(getAdminListForumCategoriesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getAdminListForumCategoriesQueryKey = () => {
+  return [`/api/admin/forum-categories`] as const;
+};
+
+export const getAdminListForumCategoriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListForumCategories>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListForumCategories>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getAdminListForumCategoriesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof adminListForumCategories>>
+  > = ({ signal }) => adminListForumCategories({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListForumCategories>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type AdminListForumCategoriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListForumCategories>>
+>;
+export type AdminListForumCategoriesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - list all forum categories
+ */
+
+export function useAdminListForumCategories<
+  TData = Awaited<ReturnType<typeof adminListForumCategories>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListForumCategories>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminListForumCategoriesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Admin - create forum category
+ */
+export const getAdminCreateForumCategoryUrl = () => {
+  return `/api/admin/forum-categories`;
+};
+
+export const adminCreateForumCategory = async (
+  upsertForumCategoryBody: UpsertForumCategoryBody,
+  options?: RequestInit,
+): Promise<ForumCategory> => {
+  return customFetch<ForumCategory>(getAdminCreateForumCategoryUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertForumCategoryBody),
+  });
+};
+
+export const getAdminCreateForumCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateForumCategory>>,
+    TError,
+    { data: BodyType<UpsertForumCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreateForumCategory>>,
+  TError,
+  { data: BodyType<UpsertForumCategoryBody> },
+  TContext
+> => {
+  const mutationKey = ["adminCreateForumCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreateForumCategory>>,
+    { data: BodyType<UpsertForumCategoryBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return adminCreateForumCategory(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminCreateForumCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreateForumCategory>>
+>;
+export type AdminCreateForumCategoryMutationBody =
+  BodyType<UpsertForumCategoryBody>;
+export type AdminCreateForumCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - create forum category
+ */
+export const useAdminCreateForumCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateForumCategory>>,
+    TError,
+    { data: BodyType<UpsertForumCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreateForumCategory>>,
+  TError,
+  { data: BodyType<UpsertForumCategoryBody> },
+  TContext
+> => {
+  return useMutation(getAdminCreateForumCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Admin - update forum category
+ */
+export const getAdminUpdateForumCategoryUrl = (id: number) => {
+  return `/api/admin/forum-categories/${id}`;
+};
+
+export const adminUpdateForumCategory = async (
+  id: number,
+  upsertForumCategoryBody: UpsertForumCategoryBody,
+  options?: RequestInit,
+): Promise<ForumCategory> => {
+  return customFetch<ForumCategory>(getAdminUpdateForumCategoryUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertForumCategoryBody),
+  });
+};
+
+export const getAdminUpdateForumCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateForumCategory>>,
+    TError,
+    { id: number; data: BodyType<UpsertForumCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminUpdateForumCategory>>,
+  TError,
+  { id: number; data: BodyType<UpsertForumCategoryBody> },
+  TContext
+> => {
+  const mutationKey = ["adminUpdateForumCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateForumCategory>>,
+    { id: number; data: BodyType<UpsertForumCategoryBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminUpdateForumCategory(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminUpdateForumCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminUpdateForumCategory>>
+>;
+export type AdminUpdateForumCategoryMutationBody =
+  BodyType<UpsertForumCategoryBody>;
+export type AdminUpdateForumCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - update forum category
+ */
+export const useAdminUpdateForumCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateForumCategory>>,
+    TError,
+    { id: number; data: BodyType<UpsertForumCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateForumCategory>>,
+  TError,
+  { id: number; data: BodyType<UpsertForumCategoryBody> },
+  TContext
+> => {
+  return useMutation(getAdminUpdateForumCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Admin - delete forum category
+ */
+export const getAdminDeleteForumCategoryUrl = (id: number) => {
+  return `/api/admin/forum-categories/${id}`;
+};
+
+export const adminDeleteForumCategory = async (
+  id: number,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getAdminDeleteForumCategoryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getAdminDeleteForumCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteForumCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminDeleteForumCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["adminDeleteForumCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDeleteForumCategory>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return adminDeleteForumCategory(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminDeleteForumCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminDeleteForumCategory>>
+>;
+
+export type AdminDeleteForumCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - delete forum category
+ */
+export const useAdminDeleteForumCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteForumCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminDeleteForumCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getAdminDeleteForumCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Admin - create location category
+ */
+export const getAdminCreateLocationCategoryUrl = () => {
+  return `/api/admin/location-categories`;
+};
+
+export const adminCreateLocationCategory = async (
+  upsertLocationCategoryBody: UpsertLocationCategoryBody,
+  options?: RequestInit,
+): Promise<Category> => {
+  return customFetch<Category>(getAdminCreateLocationCategoryUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertLocationCategoryBody),
+  });
+};
+
+export const getAdminCreateLocationCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateLocationCategory>>,
+    TError,
+    { data: BodyType<UpsertLocationCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreateLocationCategory>>,
+  TError,
+  { data: BodyType<UpsertLocationCategoryBody> },
+  TContext
+> => {
+  const mutationKey = ["adminCreateLocationCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreateLocationCategory>>,
+    { data: BodyType<UpsertLocationCategoryBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return adminCreateLocationCategory(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminCreateLocationCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreateLocationCategory>>
+>;
+export type AdminCreateLocationCategoryMutationBody =
+  BodyType<UpsertLocationCategoryBody>;
+export type AdminCreateLocationCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - create location category
+ */
+export const useAdminCreateLocationCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateLocationCategory>>,
+    TError,
+    { data: BodyType<UpsertLocationCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreateLocationCategory>>,
+  TError,
+  { data: BodyType<UpsertLocationCategoryBody> },
+  TContext
+> => {
+  return useMutation(getAdminCreateLocationCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Admin - update location category
+ */
+export const getAdminUpdateLocationCategoryUrl = (id: number) => {
+  return `/api/admin/location-categories/${id}`;
+};
+
+export const adminUpdateLocationCategory = async (
+  id: number,
+  upsertLocationCategoryBody: UpsertLocationCategoryBody,
+  options?: RequestInit,
+): Promise<Category> => {
+  return customFetch<Category>(getAdminUpdateLocationCategoryUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upsertLocationCategoryBody),
+  });
+};
+
+export const getAdminUpdateLocationCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateLocationCategory>>,
+    TError,
+    { id: number; data: BodyType<UpsertLocationCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminUpdateLocationCategory>>,
+  TError,
+  { id: number; data: BodyType<UpsertLocationCategoryBody> },
+  TContext
+> => {
+  const mutationKey = ["adminUpdateLocationCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateLocationCategory>>,
+    { id: number; data: BodyType<UpsertLocationCategoryBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminUpdateLocationCategory(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminUpdateLocationCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminUpdateLocationCategory>>
+>;
+export type AdminUpdateLocationCategoryMutationBody =
+  BodyType<UpsertLocationCategoryBody>;
+export type AdminUpdateLocationCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - update location category
+ */
+export const useAdminUpdateLocationCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateLocationCategory>>,
+    TError,
+    { id: number; data: BodyType<UpsertLocationCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateLocationCategory>>,
+  TError,
+  { id: number; data: BodyType<UpsertLocationCategoryBody> },
+  TContext
+> => {
+  return useMutation(getAdminUpdateLocationCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Admin - delete location category
+ */
+export const getAdminDeleteLocationCategoryUrl = (id: number) => {
+  return `/api/admin/location-categories/${id}`;
+};
+
+export const adminDeleteLocationCategory = async (
+  id: number,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getAdminDeleteLocationCategoryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getAdminDeleteLocationCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteLocationCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminDeleteLocationCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["adminDeleteLocationCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDeleteLocationCategory>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return adminDeleteLocationCategory(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminDeleteLocationCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminDeleteLocationCategory>>
+>;
+
+export type AdminDeleteLocationCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - delete location category
+ */
+export const useAdminDeleteLocationCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteLocationCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminDeleteLocationCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getAdminDeleteLocationCategoryMutationOptions(options));
+};
 
 /**
  * @summary Get current user's invite codes

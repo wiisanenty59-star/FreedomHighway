@@ -13,6 +13,11 @@ export const usersTable = pgTable("users", {
   location: text("location"),
   postCount: integer("post_count").notNull().default(0),
   locationCount: integer("location_count").notNull().default(0),
+  joinPurpose: text("join_purpose"),
+  joinReason: text("join_reason"),
+  joinWhyAccept: text("join_why_accept"),
+  exploreExperience: text("explore_experience"),
+  invitedBy: integer("invited_by"),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

@@ -1,13 +1,21 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcryptjs";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable, invitesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+const POSTS_TO_INVITE = 10;
+const LOCATIONS_TO_INVITE = 2;
+
 function serializeUser(user: typeof usersTable.$inferSelect) {
+  const canSendInvites =
+    user.status === "approved" &&
+    user.postCount >= POSTS_TO_INVITE &&
+    user.locationCount >= LOCATIONS_TO_INVITE;
+
   return {
     id: user.id,
     username: user.username,
@@ -19,6 +27,11 @@ function serializeUser(user: typeof usersTable.$inferSelect) {
     joinedAt: user.joinedAt.toISOString(),
     postCount: user.postCount,
     locationCount: user.locationCount,
+    joinPurpose: user.joinPurpose ?? undefined,
+    joinReason: user.joinReason ?? undefined,
+    joinWhyAccept: user.joinWhyAccept ?? undefined,
+    exploreExperience: user.exploreExperience ?? undefined,
+    canSendInvites,
   };
 }
 
@@ -63,7 +76,18 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
-  const { username, password, email, bio, location } = parsed.data;
+  const {
+    username,
+    password,
+    email,
+    bio,
+    location,
+    inviteCode,
+    joinPurpose,
+    joinReason,
+    joinWhyAccept,
+    exploreExperience,
+  } = parsed.data;
 
   const [existingUser] = await db
     .select()
@@ -85,20 +109,72 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
+  let inviteRow: typeof invitesTable.$inferSelect | undefined;
+  let autoApproved = false;
+
+  if (inviteCode) {
+    const [invite] = await db
+      .select()
+      .from(invitesTable)
+      .where(eq(invitesTable.code, inviteCode));
+
+    if (!invite) {
+      res.status(400).json({ error: "Invalid invite code" });
+      return;
+    }
+
+    if (invite.usedById) {
+      res.status(400).json({ error: "Invite code has already been used" });
+      return;
+    }
+
+    if (new Date() > invite.expiresAt) {
+      res.status(400).json({ error: "Invite code has expired" });
+      return;
+    }
+
+    inviteRow = invite;
+    autoApproved = true;
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
 
-  await db.insert(usersTable).values({
-    username,
-    email,
-    passwordHash,
-    bio: bio ?? null,
-    location: location ?? null,
-    role: "member",
-    status: "pending",
-  });
+  const [newUser] = await db
+    .insert(usersTable)
+    .values({
+      username,
+      email,
+      passwordHash,
+      bio: bio ?? null,
+      location: location ?? null,
+      joinPurpose: joinPurpose ?? null,
+      joinReason: joinReason ?? null,
+      joinWhyAccept: joinWhyAccept ?? null,
+      exploreExperience: exploreExperience ?? null,
+      invitedBy: inviteRow?.createdById ?? null,
+      role: "member",
+      status: autoApproved ? "approved" : "pending",
+    })
+    .returning();
 
-  req.log.info({ username }, "New user registered");
-  res.status(201).json({ message: "Registration submitted. Waiting for admin approval." });
+  if (inviteRow && newUser) {
+    await db
+      .update(invitesTable)
+      .set({ usedById: newUser.id, usedAt: new Date() })
+      .where(eq(invitesTable.id, inviteRow.id));
+  }
+
+  req.log.info({ username, autoApproved }, "New user registered");
+
+  if (autoApproved) {
+    res.status(201).json({
+      message: "Welcome to HiddenFreeways! Your invite code was valid — you can log in now.",
+    });
+  } else {
+    res.status(201).json({
+      message: "Application submitted. Your answers will be reviewed by the admin team.",
+    });
+  }
 });
 
 router.post("/auth/logout", async (req, res): Promise<void> => {

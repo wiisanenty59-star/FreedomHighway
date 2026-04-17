@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useLogout } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Map, MapPin, MessageSquare, Shield, LogOut, User as UserIcon, Menu } from "lucide-react";
+import { Map, MapPin, MessageSquare, Shield, LogOut, User as UserIcon, Menu, Ticket } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -36,6 +36,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <Link href="/forum" className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
         <MessageSquare className="w-4 h-4" /> Forum
       </Link>
+      {user?.canSendInvites && (
+        <Link href="/invites" className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+          <Ticket className="w-4 h-4" /> Invites
+        </Link>
+      )}
       {user?.role === "admin" && (
         <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors text-primary">
           <Shield className="w-4 h-4" /> Admin

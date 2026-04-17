@@ -41,6 +41,8 @@ export * from "./updateLocationBodyStatus";
 export * from "./updateUserStatusBody";
 export * from "./updateUserStatusBodyRole";
 export * from "./updateUserStatusBodyStatus";
+export * from "./upsertForumCategoryBody";
+export * from "./upsertLocationCategoryBody";
 export * from "./user";
 export * from "./userRole";
 export * from "./userStatus";
