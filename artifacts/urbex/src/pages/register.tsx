@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { CheckCircle, AlertCircle, Ticket } from "lucide-react";
+import { CheckCircle, AlertCircle, Ticket, ScrollText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const registerSchema = z.object({
   username: z.string().min(3, "Must be at least 3 characters").max(20, "Max 20 characters"),
@@ -22,6 +23,7 @@ const registerSchema = z.object({
   joinReason: z.string().min(20, "Please give a detailed answer (min 20 characters)"),
   joinWhyAccept: z.string().min(20, "Please give a detailed answer (min 20 characters)"),
   exploreExperience: z.string().optional(),
+  agreedToRules: z.boolean().refine(v => v === true, { message: "You must read and agree to the community rules to register." }),
 });
 
 const SECTIONS = [
@@ -61,6 +63,7 @@ export default function Register() {
       joinReason: "",
       joinWhyAccept: "",
       exploreExperience: "",
+      agreedToRules: false,
     },
   });
 
@@ -338,6 +341,70 @@ export default function Register() {
                         />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="bg-card border border-card-border overflow-hidden">
+              <div className="bg-muted/50 p-3 border-b border-border font-mono font-bold uppercase text-xs tracking-wider flex items-center gap-2">
+                <ScrollText className="w-4 h-4 text-primary" /> 03. Community Rules — Read Before Submitting
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="bg-background border border-border rounded-sm p-4 h-64 overflow-y-auto text-xs font-mono text-muted-foreground space-y-4 leading-relaxed">
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§1 — Identity & OPSEC</p>
+                    <p>Never share your real name, address, or any identifying information. Always use your urbex alias. Do not link your HiddenFreeways identity to other social media accounts. Protect yourself and others.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§2 — Take Only Photos, Leave Only Footprints (TOKTWD)</p>
+                    <p>Never remove, damage, or alter anything at a location. Leave every site exactly as you found it. Vandalism, theft, or defacement is grounds for immediate and permanent ban.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§3 — Location OPSEC</p>
+                    <p>Do not share exact coordinates or addresses of sensitive locations on social media, Discord, or any public platform. The locations on this site are shared within a trusted, vetted community only. Burning a spot is a serious offense.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§4 — Ethics & Safety</p>
+                    <p>Never go alone to high-risk locations without informing someone of your whereabouts. Respect private property laws in your jurisdiction. Do not trespass onto actively guarded or manned facilities. Know your limits.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§5 — Community Conduct</p>
+                    <p>Treat every member with respect. No harassment, gatekeeping, or elitism. Constructive criticism is welcome; personal attacks are not. Disputes are handled by moderators — do not air grievances publicly.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§6 — Location Submissions</p>
+                    <p>All map pins must be submitted through the Location Submissions forum board and reviewed by a moderator before appearing on the map. Do not submit locations you haven't personally verified. Fake or fabricated submissions result in an immediate ban.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§7 — Invite Responsibility</p>
+                    <p>When you earn the ability to invite members, you vouch for them personally. If your invite causes harm to the community, you share responsibility. Invite privileges can be revoked at any time.</p>
+                  </div>
+                  <div>
+                    <p className="text-primary font-bold uppercase mb-1">§8 — Moderation</p>
+                    <p>Admin and moderator decisions are final. If you believe a decision was wrong, contact an admin privately. Publicly arguing moderation decisions or ban evasion will result in a permanent ban.</p>
+                  </div>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="agreedToRules"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="mt-0.5"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal cursor-pointer">
+                          I have read and agree to the HiddenFreeways Community Rules. I understand that violations result in a permanent ban with no appeals.
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
                     </FormItem>
                   )}
                 />

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertTriangle, Info } from "lucide-react";
 const riskLevels = ["low", "medium", "high", "extreme"] as const;
 
 const formSchema = z.object({
@@ -34,22 +34,29 @@ export default function LocationNew() {
   const createMutation = useCreateLocation();
   const { data: categories } = useListCategories();
 
-  // Parse query params for initial coordinates if coming from map
+  // Parse query params — supports pre-fill from map click and admin submission import
   const searchParams = new URLSearchParams(window.location.search);
   const initialLat = searchParams.get('lat');
   const initialLng = searchParams.get('lng');
+  const initialTitle = searchParams.get('title') || "";
+  const initialDesc = searchParams.get('description') || "";
+  const initialState = searchParams.get('state') || "";
+  const initialCountry = searchParams.get('country') || "USA";
+  const initialRisk = (searchParams.get('riskLevel') || "medium") as typeof riskLevels[number];
+  const initialCategoryName = searchParams.get('categoryName') || "";
+  const isImport = !!searchParams.get('categoryName');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: initialTitle,
+      description: initialDesc,
       latitude: initialLat ? parseFloat(initialLat) : 0,
       longitude: initialLng ? parseFloat(initialLng) : 0,
       categoryId: 0,
-      state: "",
-      country: "USA",
-      riskLevel: "medium",
+      state: initialState,
+      country: initialCountry,
+      riskLevel: riskLevels.includes(initialRisk) ? initialRisk : "medium",
       imageUrl: "",
       accessNotes: "",
       hazards: "",
@@ -91,9 +98,22 @@ export default function LocationNew() {
       <div className="mb-8 border-b border-border pb-6">
         <h1 className="text-3xl font-mono font-bold text-primary uppercase tracking-tighter flex items-center gap-2">
           <MapPin className="w-8 h-8" />
-          Transmit Coordinates
+          {isImport ? "Import Submission to Map" : "Transmit Coordinates"}
         </h1>
-        <p className="text-muted-foreground mt-2">Log a new location into the central database. Provide accurate intel.</p>
+        <p className="text-muted-foreground mt-2">
+          {isImport
+            ? "Form pre-filled from a forum submission. Verify all details before adding to the map."
+            : "Log a new location into the central database. Provide accurate intel."}
+        </p>
+        {isImport && (
+          <div className="mt-4 bg-amber-500/10 border border-amber-500/30 p-3 flex items-start gap-2 text-xs font-mono text-amber-300">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              Importing from forum submission. Category set to: <strong>{initialCategoryName}</strong>.
+              Make sure to select the matching category below before saving.
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="bg-card border border-card-border p-6 md:p-8">

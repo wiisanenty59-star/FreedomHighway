@@ -1,16 +1,56 @@
 import { useState } from "react";
 import { useGetThread, useCreatePost } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow, format } from "date-fns";
-import { ChevronLeft, User as UserIcon, ShieldAlert, Calendar, MessageSquare, Pin, Lock } from "lucide-react";
+import { ShieldAlert, Calendar, MessageSquare, Pin, Lock, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 
+function parseSubmissionContent(content: string) {
+  const get = (key: string) => {
+    const match = content.match(new RegExp(`\\*\\*${key}:\\*\\*\\s*([^\\n]+)`));
+    return match ? match[1].trim() : "";
+  };
+  const coordStr = get("Coordinates");
+  const [latStr, lngStr] = coordStr.split(",").map(s => s.trim());
+  const lat = parseFloat(latStr) || 0;
+  const lng = parseFloat(lngStr) || 0;
+
+  const descMatch = content.match(/### Description\n([\s\S]*?)(?:\n###|$)/);
+  const description = descMatch ? descMatch[1].trim() : "";
+
+  return {
+    title: get("Spot Name / Codename"),
+    category: get("Type"),
+    lat, lng,
+    state: get("State/Province"),
+    country: get("Country") || "USA",
+    riskLevel: get("Risk Level").toLowerCase() || "medium",
+    description,
+  };
+}
+
+function buildImportUrl(content: string) {
+  const p = parseSubmissionContent(content);
+  const q = new URLSearchParams({
+    title: p.title,
+    lat: p.lat.toString(),
+    lng: p.lng.toString(),
+    state: p.state,
+    country: p.country,
+    riskLevel: p.riskLevel,
+    description: p.description,
+    categoryName: p.category,
+  });
+  return `/locations/new?${q.toString()}`;
+}
+
 export default function ForumThread() {
   const { id } = useParams();
+  const [, navigate] = useLocation();
   const threadId = Number(id);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -76,15 +116,37 @@ export default function ForumThread() {
     );
   };
 
+  const isSubmissionThread = thread?.forumCategoryName === "Location Submissions";
+
   return (
     <div className="container py-8 max-w-5xl space-y-6">
       <div className="flex items-center gap-4 text-sm text-muted-foreground font-mono mb-4">
-        <Link href="/forum" className="hover:text-primary transition-colors">Comms</Link>
+        <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
         <span>/</span>
         <Link href={`/forum/${thread.forumCategoryId}`} className="hover:text-primary transition-colors uppercase">
           {thread.forumCategoryName || "Category"}
         </Link>
       </div>
+
+      {isSubmissionThread && user?.role === "admin" && (
+        <div className="bg-amber-500/10 border border-amber-500/40 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <p className="font-mono font-bold text-amber-400 uppercase text-sm flex items-center gap-2">
+              <MapPin className="w-4 h-4" /> Admin — Location Submission Review
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Review the details below. If this spot looks legit, click "Add to Map" to import it.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="font-mono uppercase tracking-wider shrink-0 bg-amber-500 hover:bg-amber-400 text-black"
+            onClick={() => navigate(buildImportUrl(thread.content || ""))}
+          >
+            <MapPin className="w-4 h-4 mr-1.5" /> Add to Map
+          </Button>
+        </div>
+      )}
 
       <div className="border-b border-border pb-6 flex items-start gap-4">
         <div className="mt-1 shrink-0">
